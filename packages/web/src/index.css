@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette as space-separated RGB channels so Tailwind's <alpha-value> works. */
+:root {
+  --paper: 244 247 244;
+  --card: 251 252 251;
+  --ink: 22 34 29;
+  --muted: 94 111 103;
+  --line: 219 227 221;
+  --accent: 15 118 110;
+}
+
+.dark {
+  --paper: 14 22 19;
+  --card: 20 30 26;
+  --ink: 231 237 233;
+  --muted: 154 171 162;
+  --line: 35 48 42;
+  --accent: 52 211 190;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-paper text-ink antialiased;
+  }
+}

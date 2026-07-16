@@ -1,0 +1,5 @@
+# Caddy terminates HTTPS (auto Let's Encrypt) and forwards to the web container.
+# The web container's nginx serves the SPA and proxies /graphql to the api.
+{$DOMAIN} {
+	reverse_proxy web:80
+}

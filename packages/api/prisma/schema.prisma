@@ -1,0 +1,179 @@
+// hesab data model — grows one phase at a time.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}
+
+enum SplitMode {
+  EQUAL
+  EXACT
+  PERCENTAGE
+  SHARES
+  ADJUSTMENT
+  ITEMIZED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  memberships  Membership[]
+}
+
+model Group {
+  id           String       @id @default(cuid())
+  name         String
+  baseCurrency String       @default("EUR")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  memberships  Membership[]
+  invites      Invite[]
+  expenses     Expense[]
+  settlements  Settlement[]
+  auditLogs    AuditLog[]
+  shareLinks   ShareLink[]
+}
+
+// A member of a group. Links to a real User when userId is set; otherwise it is a
+// placeholder member added by name (userId stays null — Postgres treats nulls as
+// distinct, so many placeholders can coexist under the unique constraint).
+model Membership {
+  id        String   @id @default(cuid())
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId    String?
+  name      String
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+
+  paidExpenses    Expense[]      @relation("ExpensePayer")
+  splits          ExpenseSplit[] @relation("SplitMember")
+  settlementsFrom Settlement[]   @relation("SettlementFrom")
+  settlementsTo   Settlement[]   @relation("SettlementTo")
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+}
+
+model Invite {
+  id        String       @id @default(cuid())
+  group     Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  email     String
+  token     String       @unique @default(cuid())
+  role      Role         @default(MEMBER)
+  status    InviteStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+
+  @@index([groupId])
+}
+
+// A single shared expense. Money is stored in integer minor units (e.g. cents)
+// to avoid floating-point drift.
+model Expense {
+  id          String         @id @default(cuid())
+  group       Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String
+  description String
+  amount      Int
+  currency    String
+  // Amount converted into the group's base currency (minor units); balances use this.
+  baseAmount  Int
+  // Base-currency units per 1 unit of `currency`. 1 when same as base.
+  exchangeRate Float         @default(1)
+  date        DateTime       @default(now())
+  notes       String?
+  splitMode   SplitMode      @default(EQUAL)
+  paidBy      Membership     @relation("ExpensePayer", fields: [paidById], references: [id], onDelete: Restrict)
+  paidById    String
+  splits      ExpenseSplit[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([groupId])
+  @@index([paidById])
+}
+
+// One member's share of one expense, in minor units.
+model ExpenseSplit {
+  id           String     @id @default(cuid())
+  expense      Expense    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  expenseId    String
+  member       Membership @relation("SplitMember", fields: [membershipId], references: [id], onDelete: Restrict)
+  membershipId String
+  amount       Int
+
+  @@unique([expenseId, membershipId])
+  @@index([expenseId])
+}
+
+// A payment from one member to another to pay down what they owe.
+model Settlement {
+  id        String     @id @default(cuid())
+  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  from      Membership @relation("SettlementFrom", fields: [fromId], references: [id], onDelete: Restrict)
+  fromId    String
+  to        Membership @relation("SettlementTo", fields: [toId], references: [id], onDelete: Restrict)
+  toId      String
+  amount    Int
+  currency  String
+  date      DateTime   @default(now())
+  note      String?
+  createdAt DateTime   @default(now())
+
+  @@index([groupId])
+}
+
+// Append-only record of who changed which expense/settlement, for edit history.
+model AuditLog {
+  id          String      @id @default(cuid())
+  group       Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     String
+  actorUserId String?
+  entity      String
+  entityId    String
+  action      AuditAction
+  summary     String
+  createdAt   DateTime    @default(now())
+
+  @@index([groupId])
+}
+
+// A read-only public link to view a group without an account.
+model ShareLink {
+  id        String   @id @default(cuid())
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String
+  token     String   @unique @default(cuid())
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([groupId])
+}

@@ -1,0 +1,26 @@
+{
+  "name": "hesab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A small, self-hosted expense-splitting ledger for a group of friends.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev -w @hesab/api",
+    "dev:web": "npm run dev -w @hesab/web",
+    "build": "npm run build -w @hesab/api && npm run build -w @hesab/web",
+    "typecheck": "npm run typecheck -w @hesab/api && npm run typecheck -w @hesab/web",
+    "prisma:generate": "npm run prisma:generate -w @hesab/api",
+    "prisma:migrate": "npm run prisma:migrate -w @hesab/api"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "concurrently": "^9.1.0",
+    "embedded-postgres": "^18.4.0-beta.17"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

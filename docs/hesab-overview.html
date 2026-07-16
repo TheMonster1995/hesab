@@ -1,0 +1,634 @@
+<title>hesab — product brief</title>
+<style>
+  :root {
+    --paper: #F4F7F4;
+    --card: #FBFCFB;
+    --ink: #16221D;
+    --muted: #5E6F67;
+    --faint: #8A9990;
+    --line: #DBE3DD;
+    --line-strong: #C4CFC8;
+    --accent: #0F766E;
+    --accent-soft: #E1EFEB;
+    --credit: #0F766E;
+    --debit: #B4531B;
+    --shadow: 0 1px 2px rgba(20,40,32,.05), 0 8px 24px -16px rgba(20,40,32,.22);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0E1613;
+      --card: #141E1A;
+      --ink: #E7EDE9;
+      --muted: #9AABA2;
+      --faint: #6C7D74;
+      --line: #23302A;
+      --line-strong: #2F3E37;
+      --accent: #34D3BE;
+      --accent-soft: #14312B;
+      --credit: #34D3BE;
+      --debit: #E58A4E;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -18px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F4F7F4; --card: #FBFCFB; --ink: #16221D; --muted: #5E6F67; --faint: #8A9990;
+    --line: #DBE3DD; --line-strong: #C4CFC8; --accent: #0F766E; --accent-soft: #E1EFEB;
+    --credit: #0F766E; --debit: #B4531B;
+    --shadow: 0 1px 2px rgba(20,40,32,.05), 0 8px 24px -16px rgba(20,40,32,.22);
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E1613; --card: #141E1A; --ink: #E7EDE9; --muted: #9AABA2; --faint: #6C7D74;
+    --line: #23302A; --line-strong: #2F3E37; --accent: #34D3BE; --accent-soft: #14312B;
+    --credit: #34D3BE; --debit: #E58A4E;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -18px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: clamp(28px, 5vw, 64px) clamp(18px, 4vw, 40px) 96px;
+  }
+
+  /* ---- Masthead ---- */
+  .mast {
+    border-bottom: 2px solid var(--line-strong);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .eyebrow .dot { color: var(--faint); }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(44px, 9vw, 88px);
+    line-height: .98;
+    letter-spacing: -.01em;
+    margin: 0 0 4px;
+    text-wrap: balance;
+  }
+  h1 .glyph {
+    font-size: .58em;
+    color: var(--accent);
+    font-weight: 400;
+    margin-left: .1em;
+    vertical-align: baseline;
+  }
+  .thesis {
+    font-family: var(--serif);
+    font-size: clamp(18px, 2.6vw, 24px);
+    color: var(--muted);
+    max-width: 60ch;
+    margin: 16px 0 0;
+    font-style: italic;
+    line-height: 1.4;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin-top: 26px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+
+  /* ---- Section scaffold ---- */
+  section { margin-top: 56px; scroll-margin-top: 24px; }
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    margin-bottom: 26px;
+  }
+  .sec-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(24px, 4vw, 34px);
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+  .sec-note {
+    margin-left: auto;
+    font-size: 13.5px;
+    color: var(--faint);
+    text-align: right;
+    max-width: 34ch;
+  }
+  .lead { color: var(--muted); max-width: 66ch; margin: 0 0 22px; }
+
+  /* ---- Scope balance sheet ---- */
+  .ledger {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+  .ledger > div { padding: 22px 24px; }
+  .ledger > div:first-child { border-right: 1px solid var(--line); }
+  .col-head {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin: 0 0 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .col-head.in { color: var(--credit); }
+  .col-head.out { color: var(--debit); }
+  .col-head .count {
+    font-size: 20px;
+    font-family: var(--serif);
+    font-variant-numeric: tabular-nums;
+  }
+  .ledger ul { list-style: none; margin: 0; padding: 0; }
+  .ledger li {
+    padding: 7px 0;
+    font-size: 14.5px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    border-top: 1px dotted var(--line);
+  }
+  .ledger li:first-child { border-top: none; }
+  .ledger li .mk { flex: none; font-family: var(--mono); font-weight: 700; }
+  .in li .mk { color: var(--credit); }
+  .out li { color: var(--muted); }
+  .out li .mk { color: var(--debit); }
+  .out li s { text-decoration-color: var(--line-strong); }
+
+  /* ---- Feature groups ---- */
+  .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .fcard {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .fcard h3 {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 4px;
+  }
+  .fcard .fsub { font-size: 12.5px; color: var(--faint); margin: 0 0 14px; }
+  .fcard ul { list-style: none; margin: 0; padding: 0; }
+  .fcard li {
+    font-size: 14px;
+    padding: 6px 0 6px 22px;
+    position: relative;
+    border-top: 1px solid var(--line);
+    line-height: 1.45;
+  }
+  .fcard li:first-child { border-top: none; }
+  .fcard li::before {
+    content: "";
+    position: absolute;
+    left: 2px; top: 13px;
+    width: 8px; height: 8px;
+    border: 1.5px solid var(--accent);
+    border-radius: 2px;
+    background: var(--accent-soft);
+  }
+  .fcard li .tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .04em;
+    color: var(--faint);
+    border: 1px solid var(--line-strong);
+    border-radius: 20px;
+    padding: 1px 7px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  /* ---- Stack ---- */
+  .stack { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .srow {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 13px 18px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .srow .role {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .srow .pick { font-weight: 600; font-size: 15px; }
+  .srow .pick span { color: var(--faint); font-weight: 400; font-size: 13px; }
+
+  /* ---- Data model ---- */
+  .schema {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow-x: auto;
+    box-shadow: var(--shadow);
+  }
+  .schema table { border-collapse: collapse; width: 100%; min-width: 560px; }
+  .schema th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .schema td {
+    padding: 12px 18px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    vertical-align: top;
+  }
+  .schema td.ent {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .schema td.fields { color: var(--muted); font-family: var(--mono); font-size: 12.5px; }
+
+  /* ---- Roadmap ---- */
+  .road { display: flex; flex-direction: column; gap: 2px; }
+  .phase {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+  }
+  .phase:first-child { border-top: none; }
+  .phase .ph-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    padding-top: 3px;
+  }
+  .phase .ph-id .num {
+    font-family: var(--serif);
+    font-size: 30px;
+    display: block;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .phase h4 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-family: var(--serif);
+    font-weight: 600;
+  }
+  .phase p { margin: 0 0 10px; color: var(--muted); font-size: 14px; max-width: 62ch; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: 3px 9px;
+  }
+  .milestone {
+    font-size: 12.5px;
+    color: var(--faint);
+    font-style: italic;
+    margin-top: 8px;
+  }
+  .milestone b { color: var(--credit); font-style: normal; font-family: var(--mono); font-size: 11px; letter-spacing: .05em; }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 22px;
+    border-top: 2px solid var(--line-strong);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--faint);
+  }
+
+  @media (max-width: 680px) {
+    .ledger, .features, .stack { grid-template-columns: 1fr; }
+    .ledger > div:first-child { border-right: none; border-bottom: 1px solid var(--line); }
+    .sec-note { display: none; }
+    .phase { grid-template-columns: 1fr; gap: 8px; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <p class="eyebrow">
+      <span>Product Brief</span>
+      <span class="dot">/</span>
+      <span>Self-hosted</span>
+      <span class="dot">/</span>
+      <span>v0.1 scope</span>
+    </p>
+    <h1>hesab<span class="glyph">حساب</span></h1>
+    <p class="thesis">A small, self-hosted ledger for a group of friends — who paid, who shares, and the shortest path back to even.</p>
+    <div class="meta-row">
+      <span>Benchmark: <b>Spliit</b> + <b>Splitwise</b> <span>(UX &amp; split logic)</span></span>
+      <span>Audience: <b>one friends group</b></span>
+      <span>Access: <b>real accounts</b> + read-only links</span>
+    </div>
+  </header>
+
+  <section id="scope">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>Scope, as decided</h2>
+      <span class="sec-note">Your cuts are recorded here so scope creep has to argue with the ledger.</span>
+    </div>
+    <div class="ledger">
+      <div>
+        <p class="col-head in"><span>In scope — build it</span><span class="count">24</span></p>
+        <ul>
+          <li><span class="mk">+</span>Real login &amp; user accounts</li>
+          <li><span class="mk">+</span>Read-only share links (view, no edit)</li>
+          <li><span class="mk">+</span>Groups &amp; members</li>
+          <li><span class="mk">+</span>Add / edit / delete expenses</li>
+          <li><span class="mk">+</span>Six split modes (equal → itemized)</li>
+          <li><span class="mk">+</span>Balances: who owes whom</li>
+          <li><span class="mk">+</span>Debt simplification</li>
+          <li><span class="mk">+</span>Settle up &amp; reimbursement tracking</li>
+          <li><span class="mk">+</span>Multi-currency</li>
+          <li><span class="mk">+</span>Notes on expenses</li>
+          <li><span class="mk">+</span>Search &amp; filter, edit history</li>
+          <li><span class="mk">+</span>Invites, roles, email notifications</li>
+          <li><span class="mk">+</span>Export, backup/restore, dark mode, PWA</li>
+        </ul>
+      </div>
+      <div>
+        <p class="col-head out"><span>Out of scope — cut</span><span class="count">8</span></p>
+        <ul>
+          <li><span class="mk">&minus;</span><s>Categories</s></li>
+          <li><span class="mk">&minus;</span><s>Recurring expenses</s></li>
+          <li><span class="mk">&minus;</span><s>Receipt photo upload</s></li>
+          <li><span class="mk">&minus;</span><s>Receipt OCR</s></li>
+          <li><span class="mk">&minus;</span><s>Charts &amp; analytics</s></li>
+          <li><span class="mk">&minus;</span><s>Payment links</s></li>
+          <li><span class="mk">&minus;</span><s>Activity feed</s></li>
+          <li><span class="mk">&minus;</span><s>Full-access no-login</s> → read-only only</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>The feature set</h2>
+      <span class="sec-note">Grouped by the surface each one lives on.</span>
+    </div>
+    <div class="features">
+      <div class="fcard">
+        <h3>Accounts &amp; Access</h3>
+        <p class="fsub">Who gets in, and how much they can touch.</p>
+        <ul>
+          <li>Email + password login (magic-link optional)</li>
+          <li>Invite by email with a join token</li>
+          <li>Roles: admin vs member <span class="tag">per group</span></li>
+          <li>Read-only share link for a group view</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <h3>Groups &amp; Members</h3>
+        <p class="fsub">The container the money moves inside.</p>
+        <ul>
+          <li>Create &amp; name groups</li>
+          <li>Add members (invited users or plain names)</li>
+          <li>A person belongs to many groups</li>
+          <li>Global balance across all groups</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <h3>Expenses &amp; Splitting</h3>
+        <p class="fsub">The core act, and every fair way to divide it.</p>
+        <ul>
+          <li>Amount, description, payer, date, notes</li>
+          <li>Equal &amp; exact-amount splits</li>
+          <li>Percentage &amp; shares/weights</li>
+          <li>Adjustment (+/- on equal)</li>
+          <li>Itemized split <span class="tag">heavier — late phase</span></li>
+          <li>Multi-currency per expense</li>
+          <li>Edit &amp; delete with change history</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <h3>Balances &amp; Settling</h3>
+        <p class="fsub">The reckoning — and the way out of it.</p>
+        <ul>
+          <li>Live "who owes whom" per group</li>
+          <li>Debt simplification to fewest transfers</li>
+          <li>Record a settle-up payment</li>
+          <li>Reimbursement tracking (settled off-app)</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <h3>Data &amp; Experience</h3>
+        <p class="fsub">Living with the app day to day.</p>
+        <ul>
+          <li>Search &amp; filter the expense history</li>
+          <li>Export to CSV / PDF</li>
+          <li>Dark mode</li>
+          <li>Mobile-responsive, installable PWA</li>
+        </ul>
+      </div>
+      <div class="fcard">
+        <h3>Operations</h3>
+        <p class="fsub">Keeping the self-hosted instance healthy.</p>
+        <ul>
+          <li>Email notifications <span class="tag">added / paid</span></li>
+          <li>Data backup &amp; restore</li>
+          <li>Single Docker Compose deploy</li>
+          <li>Postgres as the source of truth</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="stack">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>The stack</h2>
+      <span class="sec-note">A Vite SPA talking GraphQL to an Express API.</span>
+    </div>
+    <p class="lead">A monorepo with two deployables — a Vite + React client and an Express + GraphQL API — sharing one Postgres database. The GraphQL schema is the contract between them. Prisma handles data access; auth is stateless <b>JWT</b>, with argon2 for password hashing.</p>
+    <div class="stack">
+      <div class="srow"><span class="role">Frontend</span><span class="pick">Vite <span>· React + TS</span></span></div>
+      <div class="srow"><span class="role">Styling</span><span class="pick">Tailwind CSS</span></div>
+      <div class="srow"><span class="role">API</span><span class="pick">Express + GraphQL <span>· GraphQL Yoga</span></span></div>
+      <div class="srow"><span class="role">Database</span><span class="pick">PostgreSQL</span></div>
+      <div class="srow"><span class="role">ORM</span><span class="pick">Prisma</span></div>
+      <div class="srow"><span class="role">Auth</span><span class="pick">JWT <span>· argon2</span></span></div>
+      <div class="srow"><span class="role">Deploy</span><span class="pick">Docker Compose <span>· web + api + db</span></span></div>
+    </div>
+  </section>
+
+  <section id="schema">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>Data model</h2>
+      <span class="sec-note">The whole app is these entities and the money that flows between them.</span>
+    </div>
+    <div class="schema">
+      <table>
+        <thead>
+          <tr><th>Entity</th><th>What it holds</th><th>Key fields</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="ent">User</td><td>An account that can log in</td><td class="fields">email, passwordHash, name</td></tr>
+          <tr><td class="ent">Group</td><td>A shared ledger</td><td class="fields">name, baseCurrency</td></tr>
+          <tr><td class="ent">Membership</td><td>User ↔ Group + role</td><td class="fields">userId, groupId, role</td></tr>
+          <tr><td class="ent">Expense</td><td>One thing someone paid for</td><td class="fields">payerId, amount, currency, date, notes, splitMode</td></tr>
+          <tr><td class="ent">ExpenseSplit</td><td>One member's share of an expense</td><td class="fields">expenseId, memberId, shareValue</td></tr>
+          <tr><td class="ent">Settlement</td><td>A payment that clears debt</td><td class="fields">fromId, toId, amount, date</td></tr>
+          <tr><td class="ent">Invite</td><td>Pending email invitation</td><td class="fields">groupId, email, token, status</td></tr>
+          <tr><td class="ent">ShareLink</td><td>Read-only public token</td><td class="fields">groupId, token, revoked</td></tr>
+          <tr><td class="ent">AuditLog</td><td>Edit/delete history</td><td class="fields">entity, action, actorId, diff, at</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="roadmap">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>Execution plan</h2>
+      <span class="sec-note">Each phase ends on something you can actually use.</span>
+    </div>
+    <p class="lead">Vertical slices, not layers. The app does something real by Phase 3 and everything after is depth. Ship, use it with the group, then keep going.</p>
+    <div class="road">
+      <div class="phase">
+        <div class="ph-id"><span class="num">0</span>Setup</div>
+        <div>
+          <h4>Scaffold &amp; self-host skeleton</h4>
+          <p>Monorepo: a Vite + React client and an Express + GraphQL API, Prisma wired to Postgres, Docker Compose bringing up web + api + db, base Tailwind layout with dark-mode tokens.</p>
+          <div class="chips"><span class="chip">vite</span><span class="chip">express</span><span class="chip">graphql</span><span class="chip">prisma</span><span class="chip">docker-compose</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;<code>docker compose up</code> serves the client against a live GraphQL API.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="ph-id"><span class="num">1</span>Auth</div>
+        <div>
+          <h4>Accounts &amp; login</h4>
+          <p>JWT auth on the GraphQL API — email + password hashed with argon2, signup / login / logout mutations that issue a signed token, verified in the GraphQL context with resolver-level guards on protected fields.</p>
+          <div class="chips"><span class="chip">argon2</span><span class="chip">JWT</span><span class="chip">GraphQL context</span><span class="chip">guards</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;a real person can register and land on their (empty) dashboard.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="ph-id"><span class="num">2</span>Groups</div>
+        <div>
+          <h4>Groups, members, invites &amp; roles</h4>
+          <p>Create groups, add members, invite by email, admin/member roles. Multiple groups per user.</p>
+          <div class="chips"><span class="chip">Group</span><span class="chip">Membership</span><span class="chip">Invite</span><span class="chip">roles</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;two accounts share one group.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="ph-id"><span class="num">3</span>Split</div>
+        <div>
+          <h4>Expenses — equal &amp; exact</h4>
+          <p>Add / edit / delete an expense with a payer and either an equal or exact-amount split. Expense list per group. <em>This is the first genuinely useful build.</em></p>
+          <div class="chips"><span class="chip">Expense</span><span class="chip">ExpenseSplit</span><span class="chip">equal</span><span class="chip">exact</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;the group can log a shared dinner.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="ph-id"><span class="num">4</span>Balance</div>
+        <div>
+          <h4>Balances, simplification &amp; settle up</h4>
+          <p>Compute who owes whom, run debt simplification to the fewest transfers, record settle-up payments and off-app reimbursements.</p>
+          <div class="chips"><span class="chip">balances</span><span class="chip">simplify algo</span><span class="chip">Settlement</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;the group can get back to even.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="ph-id"><span class="num">5</span>Depth</div>
+        <div>
+          <h4>Advanced splits &amp; currency</h4>
+          <p>Percentage, shares/weights, adjustment, and itemized splits; per-expense multi-currency with conversion to the group's base.</p>
+          <div class="chips"><span class="chip">percentage</span><span class="chip">shares</span><span class="chip">itemized</span><span class="chip">FX</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;every split mode balances correctly.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="ph-id"><span class="num">6</span>Polish</div>
+        <div>
+          <h4>Living-with-it features</h4>
+          <p>Search &amp; filter, edit history (AuditLog), read-only share links, installable PWA, dark-mode pass.</p>
+          <div class="chips"><span class="chip">search</span><span class="chip">AuditLog</span><span class="chip">ShareLink</span><span class="chip">PWA</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;it feels good on a phone.</p>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="ph-id"><span class="num">7</span>Ops</div>
+        <div>
+          <h4>Notifications, export &amp; backup</h4>
+          <p>Email on "added to expense / you were paid", CSV &amp; PDF export, and a backup/restore path for the self-hosted database.</p>
+          <div class="chips"><span class="chip">email</span><span class="chip">export</span><span class="chip">backup</span></div>
+          <p class="milestone"><b>DONE WHEN</b> &nbsp;you can leave it running unattended.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>hesab &middot; product brief</span>
+    <span>8 phases &middot; 24 features in &middot; 8 cut</span>
+  </footer>
+</div>
