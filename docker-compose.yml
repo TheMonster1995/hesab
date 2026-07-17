@@ -27,7 +27,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "${API_PORT:-4000}:4000"
+      - "${API_PORT:-4001}:4000"
 
   web:
     build:
